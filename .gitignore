@@ -2,6 +2,7 @@
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uilds/
+/BuildWebGL/
 /Assets/AssetStoreTools*
 
 # Visual Studio 2015 cache directory
