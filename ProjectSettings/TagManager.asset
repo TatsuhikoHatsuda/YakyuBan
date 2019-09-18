@@ -3,7 +3,16 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - BatTag
+  - BallTag
+  - SingleHitTag
+  - DoubleHitTag
+  - TripleHitTag
+  - HomerunTag
+  - StrikeZoneTag
+  - FoulTerritoryTag
+  - OutTerritoryTag
   layers:
   - Default
   - TransparentFX
