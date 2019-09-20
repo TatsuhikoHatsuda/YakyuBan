@@ -28,6 +28,11 @@ public class BallController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+        //左矢印キーを押した時左フリッパーを動かす
+        if (Input.GetKeyDown(KeyCode.UpArrow)) {
+            this.transform.position = new Vector3(0f, 1.1f, 84.8f);
+        }
+
         // 投げていい合図が来たら投げる
         if (this.isThrowing) {
             StartCoroutine("ThrowBall");

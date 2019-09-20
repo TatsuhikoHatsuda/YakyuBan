@@ -14,6 +14,9 @@ public class BatController : MonoBehaviour {
     // StrikeZoneのオブジェクトの当たり判定
     private BoxCollider strikeZone;
 
+    // FoulTerritoryのオブジェクト
+    private GameObject foulTerritory;
+
     // ballのスクリプト
     private BallController ballController;
 
@@ -35,6 +38,7 @@ public class BatController : MonoBehaviour {
         // オブジェクト取得
         this.batBody = transform.Find("BatBody").gameObject.GetComponent<CapsuleCollider>();
         this.strikeZone = GameObject.Find("StrikeZone").GetComponent<BoxCollider>();
+        this.foulTerritory = GameObject.Find("FoulTerritory");
 
         // スクリプトを取得
         this.ballController = GameObject.Find("Ball").GetComponent<BallController>();
@@ -42,6 +46,10 @@ public class BatController : MonoBehaviour {
 
         // 初期角度に設定
         SetAngle(this.defaultAngle);
+
+        // ファールの当たり判定を無効にする
+        this.foulTerritory.SetActive(false);
+
 	}
 	
 	// Update is called once per frame
@@ -57,13 +65,6 @@ public class BatController : MonoBehaviour {
                 // 初期角度に戻す
                 SetAngle(this.defaultAngle);
             }
-            /*
-            //左矢印キーを押した時左フリッパーを動かす
-            if (Input.GetKeyDown(KeyCode.Z)) {
-                // バットを振る
-                StartCoroutine("SwingBat");
-            }
-             */
         }
 	}
 
@@ -76,11 +77,17 @@ public class BatController : MonoBehaviour {
 
     //衝突時に呼ばれる関数
     void OnCollisionEnter(Collision other) {
-        // ボールに1度触れたら当たり判定を消す
+        // ボールに当たった場合
         if (other.gameObject.tag == "BallTag") {
-            this.batBody.enabled = false;
-            this.strikeZone.enabled = false;
+            // 打たれたフラグをtrueにする
             this.ballController.isBatting = true;
+
+            // バットの判定を無効にする
+            this.batBody.enabled = false;
+            // ストライクゾーンを判定を無効にする
+            this.strikeZone.enabled = false;
+            // ファールの当たり判定を有効にする
+            this.foulTerritory.SetActive(true);
         }
     }
 
@@ -88,13 +95,6 @@ public class BatController : MonoBehaviour {
     public void ResetBat() {
         this.batBody.enabled = true;
         this.strikeZone.enabled = true;
-    }
-
-    // バットを振る
-    IEnumerator SwingBat() {
-        for (int i = 0; i < 30; i++) {
-            transform.Rotate(0, -7, 0);
-            yield return null;
-        }
+        this.foulTerritory.SetActive(false);
     }
 }

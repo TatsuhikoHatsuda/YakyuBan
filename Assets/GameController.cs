@@ -208,6 +208,10 @@ public class GameController : MonoBehaviour {
                     this.AdvanceCounter--;
                 }
 
+                // ボールカウントをリセット
+                this.strikeCount = 0;
+                UpdateBallCountImage();
+
                 // 塁UIを更新
                 UpdateBaseUIImage();
             }
@@ -217,8 +221,6 @@ public class GameController : MonoBehaviour {
                 // ゲームオーバー
                 this.isGameOver = true;
                 this.isStartingGame = false;
-                // ゲームオーバーの文字を表示する
-                this.gameoverObject.SetActive(true);
             }
         }
 	}
@@ -261,14 +263,15 @@ public class GameController : MonoBehaviour {
                     // ストライクカウントを追加
                     this.strikeCount++;
 
+                    // 表示する文字をセット
+                    this.hitTextType = 4;
+
                     // 3ストライクで1アウト
                     if (this.strikeCount >= 3) {
                         this.outCount++;
                         this.strikeCount = 0;
+                        this.hitTextType = 7;
                     }
-
-                    // 表示する文字をセット
-                    this.hitTextType = 4;
                     break;
                 // ファールエリアの場合
                 case "FoulTerritoryTag":
@@ -398,6 +401,7 @@ public class GameController : MonoBehaviour {
 
     // 判定表示
     IEnumerator DrawHitText(int type) {
+        // 表示する文字を設定
         switch (type) {
             case 0:
                 this.UIHitText.text = "ヒット";
@@ -409,7 +413,21 @@ public class GameController : MonoBehaviour {
                 this.UIHitText.text = "スリーベース\nヒット";
                 break;
             case 3:
-                this.UIHitText.text = "ホームラン";
+                string kindHomerun = "";
+                switch (this.runnerList.Count) {
+                    case 1:
+                        kindHomerun = "ツーラン\n";
+                        break;
+                    case 2:
+                        kindHomerun = "スリーラン\n";
+                        break;
+                    case 3:
+                        kindHomerun = "満塁\n";
+                        break;
+                    default:
+                        break;
+                }
+                this.UIHitText.text = kindHomerun + "ホームラン";
                 break;
             case 4:
                 this.UIHitText.text = "ストライク";
@@ -420,12 +438,28 @@ public class GameController : MonoBehaviour {
             case 6:
                 this.UIHitText.text = "アウト";
                 break;
+            case 7:
+                this.UIHitText.text = "ストライク";
+                break;
         }
 
+        // 文字のアニメーション
         this.UIHitText.fontSize = 50;
         for (int i = 0; i < 25; i++) {
             this.UIHitText.fontSize += 2;
             yield return null;
+        }
+
+        // 3振でアウトになった場合ストライク後にアウトを表示
+        if (type == 7) {
+            yield return new WaitForSeconds(0.8f);
+            this.UIHitText.text = "アウト";
+            // 文字のアニメーション
+            this.UIHitText.fontSize = 50;
+            for (int i = 0; i < 25; i++) {
+                this.UIHitText.fontSize += 2;
+                yield return null;
+            }
         }
 
         // 1秒後に消す
@@ -434,7 +468,14 @@ public class GameController : MonoBehaviour {
 
         // ボールを元に戻し投げる合図を出す
         this.ballController.ResetBall();
-        this.ballController.isThrowing = true;
+        if (!this.isGameOver) {
+            this.ballController.isThrowing = true;
+        }
+        // ゲームオーバーの場合は文字を表示させる
+        else {
+            // ゲームオーバーの文字を表示する
+            this.gameoverObject.SetActive(true);
+        }
 
         // バットとストライクゾーンの判定も元に戻す
         this.batController.ResetBat();
@@ -450,5 +491,6 @@ public class GameController : MonoBehaviour {
         this.isStartingGame = true;
         UpdateBallCountImage();
         UpdateBaseUIImage();
+        this.ballController.isThrowing = true;
     }
 }
